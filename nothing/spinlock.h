@@ -25,15 +25,8 @@ class spinlock {
         }
     }
 
-    bool try_lock() noexcept
-    {
-        return !_flag.test_and_set();
-    }
-
-    void unlock() noexcept
-    {
-        _flag.clear();
-    }
+    bool try_lock() noexcept { return !_flag.test_and_set(); }
+    void unlock() noexcept { _flag.clear(); }
 
   private:
     std::atomic_flag _flag;

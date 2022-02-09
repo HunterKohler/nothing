@@ -8,7 +8,7 @@ AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortEnumsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowAllArgumentsOnNextLine: false
@@ -30,7 +30,7 @@ BraceWrapping:
     AfterControlStatement: false
     AfterEnum: false
     AfterFunction: true
-    AfterNamespace: true
+    AfterNamespace: false
     AfterObjCDeclaration: false
     AfterStruct: false
     AfterUnion: false

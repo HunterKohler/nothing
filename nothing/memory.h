@@ -1,5 +1,11 @@
+/*
+ * Copyright (C) 2021-2022 John Hunter Kohler <jhunterkohler@gmail.com>
+ */
 #ifndef NOTHING_MEMORY_H_
 #define NOTHING_MEMORY_H_
+
+#include <memory>
+#include <utility>
 
 namespace nothing {
 namespace internal {
@@ -75,9 +81,10 @@ reallocate(Allocator &allocator, std::size_t size, std::size_t newsize, T *src,
     typename std::allocator_traits<Allocator>::pointer dest =
         allocate(allocator, newsize);
 
-    if(newsize > size) {
+    if (newsize > size) {
         move_construct_n(allocator, size, src, dest);
-        construct_n(allocator, newsize - size, dest + size, std::forward<Args>(args)...);
+        construct_n(allocator, newsize - size, dest + size,
+                    std::forward<Args>(args)...);
     } else {
         move_construct_n(allocator, newsize, src, dest);
     }

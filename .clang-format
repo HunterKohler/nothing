@@ -43,7 +43,7 @@ BraceWrapping:
     SplitEmptyFunction: true
     SplitEmptyNamespace: true
 BreakStringLiterals: false
-FixNamespaceComments: false
+FixNamespaceComments: true
 EmptyLineBeforeAccessModifier: Always
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: true

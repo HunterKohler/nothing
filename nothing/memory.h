@@ -5,98 +5,64 @@
 #define NOTHING_MEMORY_H_
 
 #include <memory>
-#include <utility>
+#include <concepts>
 
 namespace nothing {
-namespace internal {
-namespace memory {
 
-template <class Allocator>
-constexpr typename std::allocator_traits<Allocator>::pointer
-allocate(Allocator &allocator,
-         typename std::allocator_traits<Allocator>::size_type n)
-{
-    return std::allocator_traits<Allocator>::allocate(allocator, n);
-}
+/*
+ * Wraps a function pointer, or reference, `Delete` as an empty base struct to
+ * be passed with 'no' overhead to `unique_ptr` classes and similar.
+ */
+template <auto Delete>
+struct empty_base_deleter {
+    constexpr empty_base_deleter() noexcept = default;
 
-template <class Allocator>
-constexpr typename std::allocator_traits<Allocator>::pointer
-allocate(Allocator &allocator,
-         typename std::allocator_traits<Allocator>::size_type n,
-         typename std::allocator_traits<Allocator>::const_void_pointer hint)
-{
-    return std::allocator_traits<Allocator>::allocate(allocator, n, hint);
-}
-
-template <class Allocator>
-constexpr void
-deallocate(Allocator &allocator,
-           typename std::allocator_traits<Allocator>::pointer ptr,
-           typename std::allocator_traits<Allocator>::size_type n)
-{
-    std::allocator_traits<Allocator>::deallocate(allocator, ptr, n);
-}
-
-template <class Allocator, class T, class... Args>
-constexpr void construct(Allocator &allocator, T *ptr, Args &&...args)
-{
-    std::allocator_traits<Allocator>::construct(allocator, ptr,
-                                                std::forward<Args>(args)...);
-}
-
-template <class Allocator, class T>
-constexpr void destroy(Allocator &allocator, T *ptr)
-{
-    std::allocator_traits<Allocator>::destroy(allocator, ptr);
-}
-
-template <class Allocator, class T, class... Args>
-constexpr void construct_n(Allocator &allocator, std::size_t n, T *ptr,
-                           Args &&...args)
-{
-    for (; n > 0; n--, ptr++)
-        construct(allocator, ptr, std::forward<Args>(args)...);
-}
-
-template <class Allocator, class T>
-constexpr void destroy_n(Allocator &allocator, T *ptr, std::size_t n)
-{
-    for (; n > 0; n--, ptr++)
-        destroy(allocator, ptr);
-}
-
-template <class Allocator, class T>
-constexpr void move_construct_n(Allocator &allocator, std::size_t n, T *src,
-                                T *dest)
-{
-    for (; n > 0; n--, dest++, src++)
-        construct(allocator, dest, std::move(*src));
-}
-
-template <class Allocator, class T, class... Args>
-constexpr typename std::allocator_traits<Allocator>::pointer
-reallocate(Allocator &allocator, std::size_t size, std::size_t newsize, T *src,
-           Args &&...args)
-{
-    typename std::allocator_traits<Allocator>::pointer dest =
-        allocate(allocator, newsize);
-
-    if (newsize > size) {
-        move_construct_n(allocator, size, src, dest);
-        construct_n(allocator, newsize - size, dest + size,
-                    std::forward<Args>(args)...);
-    } else {
-        move_construct_n(allocator, newsize, src, dest);
+    template <class T>
+    constexpr void operator()(T *ptr) noexcept(noexcept(Delete(ptr)))
+    {
+        Delete(ptr);
     }
+};
 
-    destroy_n(allocator, src, size);
-    deallocate(allocator, src, size);
+/*
+ * Smart pointer deleter for libc allocated memory. Standard does not mandate
+ * that `new` operators be implemented with libc allocators. Template argument
+ * `T` provides an arbitrary type constraint on the pointed-to type bein
+ * passed freed.
+ */
+template <class T>
+struct libc_deleter {
+    constexpr libc_deleter() noexcept = default;
 
-    return dest;
-}
+    template <class U>
+        requires std::convertible_to<U *, T *>
+    constexpr libc_deleter(const libc_deleter<U> &) {}
 
-} // namespace memory
-} // namespace internal
-} // namespace nothing
+    constexpr void operator()(T *ptr) const { std::free(ptr); }
+};
+
+/*
+ * Specialization for arrays.
+ */
+template <class T>
+struct libc_deleter<T[]> {
+    constexpr libc_deleter() noexcept = default;
+
+    template <class U>
+        requires std::convertible_to<U (*)[], T (*)[]>
+    constexpr libc_deleter(const libc_deleter<U[]> &) noexcept {};
+
+    template <class U>
+        requires std::convertible_to<U (*)[], T (*)[]>
+    constexpr void operator()(U *ptr) const { std::free(ptr); }
+};
+
+/*
+ * Type alias for unique pointers using libc allocation.
+ */
+template <class T>
+using libc_unique_ptr = std::unique_ptr<T, libc_deleter<T>>;
+
+}; // namespace nothing
 
 #endif

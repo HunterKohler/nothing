@@ -10,11 +10,16 @@
 namespace nothing {
 namespace internal {
 
-template <class Exception, std::size_t N = 100, class... Args>
-void throw_formatted(const char *fmt, const Args &...args)
+template <class Exception, std::size_t N = 100>
+[[gnu::format(printf, 1, 2)]] constexpr void throw_formatted(const char *fmt...)
 {
     char buf[N];
-    std::snprintf(buf, sizeof(buf), args...);
+    va_list ap;
+
+    va_start(ap, fmt);
+    std::vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
     throw Exception(buf);
 }
 

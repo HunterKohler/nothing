@@ -21,7 +21,9 @@ class intrusive_refcount {
     using policy = Policy;
     using element_type = T;
 
-    constexpr intrusive_refcount() noexcept : _count{} {}
+    constexpr intrusive_refcount() noexcept : _count{}
+    {}
+
     constexpr intrusive_refcount(const intrusive_refcount &other) noexcept
         : _count{ other._count }
     {}
@@ -48,7 +50,11 @@ class intrusive_refcount {
 
     count_type _count;
 
-    constexpr void _ref() noexcept { _count++; }
+    constexpr void _ref() noexcept
+    {
+        _count++;
+    }
+
     constexpr void _deref() noexcept
     {
         if (!--_count) {
@@ -62,8 +68,11 @@ class intrusive_ptr {
   public:
     using element_type = T;
 
-    constexpr intrusive_ptr() noexcept : _ptr{} {}
-    constexpr intrusive_ptr(std::nullptr_t) noexcept : _ptr{} {}
+    constexpr intrusive_ptr() noexcept : _ptr{}
+    {}
+
+    constexpr intrusive_ptr(std::nullptr_t) noexcept : _ptr{}
+    {}
 
     explicit constexpr intrusive_ptr(element_type *ptr) noexcept : _ptr{ ptr }
     {
@@ -94,7 +103,11 @@ class intrusive_ptr {
         }
     }
 
-    constexpr void reset(std::nullptr_t) noexcept { reset(); }
+    constexpr void reset(std::nullptr_t) noexcept
+    {
+        reset();
+    }
+
     constexpr void reset(element_type *ptr) noexcept
     {
         if (_ptr != ptr) {
@@ -115,7 +128,10 @@ class intrusive_ptr {
         std::swap(_ptr, other._ptr);
     }
 
-    constexpr element_type *get() const noexcept { return _ptr; }
+    constexpr element_type *get() const noexcept
+    {
+        return _ptr;
+    }
 
     constexpr intrusive_ptr &operator=(std::nullptr_t) noexcept
     {
@@ -141,14 +157,25 @@ class intrusive_ptr {
         return *this;
     }
 
-    constexpr element_type &operator*() const noexcept { return *_ptr; }
-    constexpr element_type *operator->() const noexcept { return _ptr; }
+    constexpr element_type &operator*() const noexcept
+    {
+        return *_ptr;
+    }
+
+    constexpr element_type *operator->() const noexcept
+    {
+        return _ptr;
+    }
+
     constexpr element_type &operator[](std::ptrdiff_t index) const noexcept
     {
         return _ptr + index;
     }
 
-    explicit constexpr operator bool() const noexcept { return _ptr; }
+    explicit constexpr operator bool() const noexcept
+    {
+        return _ptr;
+    }
 
   private:
     static constexpr bool is_thread_safe =
@@ -169,8 +196,15 @@ class intrusive_ptr {
 
     element_type *_ptr;
 
-    constexpr void _deref() const { _refcount()._deref(); }
-    constexpr void _ref() const { _refcount()._ref(); }
+    constexpr void _deref() const
+    {
+        _refcount()._deref();
+    }
+
+    constexpr void _ref() const
+    {
+        _refcount()._ref();
+    }
 
     constexpr refcount_type &_refcount() const noexcept
     {

@@ -25,43 +25,50 @@ struct empty_base_deleter {
 };
 
 /*
- * Smart pointer deleter for libc allocated memory. Standard does not mandate
- * that `new` operators be implemented with libc allocators. Template argument
+ * Smart pointer deleter for cstdlib allocated memory. Standard does not mandate
+ * that `new` operators be implemented with cstdlib allocators. Template argument
  * `T` provides an arbitrary type constraint on the pointed-to type bein
  * passed freed.
  */
 template <class T>
-struct libc_deleter {
-    constexpr libc_deleter() noexcept = default;
+struct cstdlib_deleter {
+    constexpr cstdlib_deleter() noexcept = default;
 
     template <class U>
         requires std::convertible_to<U *, T *>
-    constexpr libc_deleter(const libc_deleter<U> &) {}
+    constexpr cstdlib_deleter(const cstdlib_deleter<U> &)
+    {}
 
-    constexpr void operator()(T *ptr) const { std::free(ptr); }
+    constexpr void operator()(T *ptr) const
+    {
+        std::free(ptr);
+    }
 };
 
 /*
  * Specialization for arrays.
  */
 template <class T>
-struct libc_deleter<T[]> {
-    constexpr libc_deleter() noexcept = default;
+struct cstdlib_deleter<T[]> {
+    constexpr cstdlib_deleter() noexcept = default;
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr libc_deleter(const libc_deleter<U[]> &) noexcept {};
+    constexpr cstdlib_deleter(const cstdlib_deleter<U[]> &) noexcept {};
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr void operator()(U *ptr) const { std::free(ptr); }
+    constexpr void operator()(U *ptr) const
+    {
+        std::free(ptr);
+    }
 };
 
 /*
- * Type alias for unique pointers using libc allocation.
+ * Type alias for unique pointers using cstdlib allocation.
  */
 template <class T>
-using libc_unique_ptr = std::unique_ptr<T, libc_deleter<T>>;
+using cstdlib_unique_ptr = std::unique_ptr<T, cstdlib_deleter<T>>;
 
 }; // namespace nothing
 

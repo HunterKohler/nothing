@@ -23,7 +23,7 @@ namespace abi {
 void demangle(const char *mangled, std::output_iterator<char> auto dest)
 {
     int status;
-    libc_unique_ptr<char[]> name(
+    cstdlib_unique_ptr<char[]> name(
         ::abi::__cxa_demangle(mangled, nullptr, nullptr, &status));
 
     switch (status) {

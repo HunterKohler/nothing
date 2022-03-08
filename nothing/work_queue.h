@@ -7,8 +7,7 @@
 #include <chrono>
 #include <memory>
 
-namespace nothing
-{
+namespace nothing {
 
 class worker {
     using task_type = std::package_task<void(void)>;
@@ -17,8 +16,13 @@ class worker {
     std::thread _thread;
     std::packaged_task<void(void)> _task;
 
-    worker(work_queue *owner) : _owner{ owner }, _thread(&worker::loop, this) {}
-    ~worker() { _thread.join(); }
+    worker(work_queue *owner) : _owner{ owner }, _thread(&worker::loop, this)
+    {}
+
+    ~worker()
+    {
+        _thread.join();
+    }
 
     void loop()
     {
@@ -69,7 +73,8 @@ class work_queue {
     std::queue<task_type> _work;
     std::list<worker> _workers;
 
-    work_queue(size_type max_workers) : work_queue(0, max_workers) {}
+    work_queue(size_type max_workers) : work_queue(0, max_workers)
+    {}
     work_queue(size_type min_workers = 0, size_type max_workers = 0,
                duration_type linger = 0,
                launch_policy policy = launch_policy::start)
@@ -130,19 +135,41 @@ class work_queue {
         }
     }
 
-    size_type max_workers() const { return _max_workers; }
+    size_type max_workers() const
+    {
+        return _max_workers;
+    }
+
     size_type max_workers(size_type n);
 
-    size_type min_workers() const { return _min_workers; }
+    size_type min_workers() const
+    {
+        return _min_workers;
+    }
+
     size_type min_workers(size_type n);
 
-    duration_type linger() const { return _linger; }
+    duration_type linger() const
+    {
+        return _linger;
+    }
+
     duration_type linger(duration_type t);
 
-    state get_state() const { return _state; }
+    state get_state() const
+    {
+        return _state;
+    }
 
-    size_type idle() const { return _idle; }
-    size_type active() const { return _workers.size() - _idle; }
+    size_type idle() const
+    {
+        return _idle;
+    }
+
+    size_type active() const
+    {
+        return _workers.size() - _idle;
+    }
 };
 
 } // namespace nothing

@@ -8,7 +8,7 @@ AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortEnumsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowAllArgumentsOnNextLine: false
@@ -39,7 +39,7 @@ BraceWrapping:
     IndentBraces: false
     BeforeLambdaBody: false
     BeforeWhile: false
-    SplitEmptyRecord: true
+    SplitEmptyRecord: false
     SplitEmptyFunction: true
     SplitEmptyNamespace: true
 BreakStringLiterals: false
@@ -64,6 +64,7 @@ NamespaceIndentation: None
 PointerAlignment: Right
 ReflowComments: false
 SortIncludes: false
+SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: true
 SpaceBeforeAssignmentOperators: true
@@ -72,7 +73,7 @@ SpaceBeforeCaseColon: false
 SpaceInEmptyBlock: false
 SpacesInConditionalStatement: false
 SpaceBeforeRangeBasedForLoopColon: false
-UseCRLF: false
+ShortNamespaceLines: 0
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
@@ -81,4 +82,5 @@ SpacesInContainerLiterals: true
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard: c++20
+UseCRLF: false
 UseTab: Never

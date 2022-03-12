@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021-2022 John Hunter Kohler <jhunterkohler@gmail.com>
  *
- * Itanium ABI wrappers and general tomfoolery.
+ * Itanium ABI wrappers.
  *
  * Reference:
  * https://itanium-cxx-abi.github.io/cxx-abi/abi.html
@@ -14,16 +14,17 @@
 #include <string_view>
 #include <exception>
 #include <stdexcept>
+#include <algorithm>
 #include <cxxabi.h>
 #include <nothing/memory.h>
 
 namespace nothing {
 namespace abi {
 
-void demangle(const char *mangled, std::output_iterator<char> auto dest)
+std::string demangle(const char *mangled)
 {
     int status;
-    cstdlib_unique_ptr<char[]> name(
+    stdlibc_unique_ptr<char[]> name(
         ::abi::__cxa_demangle(mangled, nullptr, nullptr, &status));
 
     switch (status) {
@@ -37,8 +38,22 @@ void demangle(const char *mangled, std::output_iterator<char> auto dest)
             "nothing::abi::demangle: Invalid arguments.");
     }
 
-    for (int i = 0; name[i]; i++)
-        *dest++ = name[i];
+    return name.get();
+}
+
+std::string demangle(const std::string &mangled)
+{
+    return demangle(mangled.c_str());
+}
+
+std::string demangle(const char *mangled, std::size_t size)
+{
+    return demangle(std::string(mangled, size));
+}
+
+std::string demangle(std::string_view mangled)
+{
+    return demangle(std::string(mangled));
 }
 
 } // namespace abi

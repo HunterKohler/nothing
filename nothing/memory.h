@@ -5,19 +5,26 @@
 #define NOTHING_MEMORY_H_
 
 #include <memory>
-#include <concepts>
 
 namespace nothing {
 
 /*
- * Wraps a function pointer, or reference, `Delete` as an empty base struct to
- * be passed with 'no' overhead to `unique_ptr` classes and similar.
+ * Wrapper for a deleting function `Delete` to allow empty-base-class
+ * optimization with `unique_ptr`.
  */
-template <auto Delete>
-struct empty_base_deleter {
-    constexpr empty_base_deleter() noexcept = default;
+template <class T, auto Delete>
+struct empty_deleter {
+    template <class U>
+    using enable_if_convertible =
+        std::enable_if_t<std::is_convertible_v<U *, T *>>;
 
-    template <class T>
+  public:
+    constexpr empty_deleter() noexcept = default;
+
+    template <class U, enable_if_convertible<U> * = nullptr>
+    constexpr empty_deleter(const empty_deleter<U, Delete> &) noexcept
+    {}
+
     constexpr void operator()(T *ptr) noexcept(noexcept(Delete(ptr)))
     {
         Delete(ptr);
@@ -25,50 +32,40 @@ struct empty_base_deleter {
 };
 
 /*
- * Smart pointer deleter for cstdlib allocated memory. Standard does not mandate
- * that `new` operators be implemented with cstdlib allocators. Template argument
- * `T` provides an arbitrary type constraint on the pointed-to type bein
- * passed freed.
+ * Partial specialization of `empty_deleter` for array types.
  */
-template <class T>
-struct cstdlib_deleter {
-    constexpr cstdlib_deleter() noexcept = default;
-
+template <class T, auto Delete>
+struct empty_deleter<T[], Delete> {
     template <class U>
-        requires std::convertible_to<U *, T *>
-    constexpr cstdlib_deleter(const cstdlib_deleter<U> &)
+    using enable_if_convertible =
+        std::enable_if_t<std::is_convertible_v<U (*)[], T (*)[]>>;
+
+  public:
+    constexpr empty_deleter() noexcept = default;
+
+    template <class U, enable_if_convertible<U> * = nullptr>
+    constexpr empty_deleter(const empty_deleter<U, Delete> &d) noexcept
     {}
 
-    constexpr void operator()(T *ptr) const
+    template <class U>
+    constexpr enable_if_convertible<U>
+    operator()(U *ptr) noexcept(noexcept(Delete(ptr)))
     {
-        std::free(ptr);
+        Delete(ptr);
     }
 };
 
 /*
- * Specialization for arrays.
+ * Deleter C standard-library allocated memory.
  */
 template <class T>
-struct cstdlib_deleter<T[]> {
-    constexpr cstdlib_deleter() noexcept = default;
-
-    template <class U>
-        requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr cstdlib_deleter(const cstdlib_deleter<U[]> &) noexcept {};
-
-    template <class U>
-        requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr void operator()(U *ptr) const
-    {
-        std::free(ptr);
-    }
-};
+using stdlibc_deleter = empty_deleter<T, std::free>;
 
 /*
- * Type alias for unique pointers using cstdlib allocation.
+ * Unique pointer for C standard-library allocated memory.
  */
 template <class T>
-using cstdlib_unique_ptr = std::unique_ptr<T, cstdlib_deleter<T>>;
+using stdlibc_unique_ptr = std::unique_ptr<T, stdlibc_deleter<T>>;
 
 }; // namespace nothing
 

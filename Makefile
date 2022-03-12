@@ -1,60 +1,39 @@
 SHELL = bash
 
+CXXSTANDARD := C++17
+
+CPPFLAGS := -MD -MP -I./
 CXXFLAGS := \
-	-g  \
-	-O0 \
-	-std=c++20 \
+	-std=$(CXXSTANDARD) \
 	-fanalyzer \
 	-Wall \
 	-Wextra
 
-CPPFLAGS := -MD -MP -I./
-
 LDFLAGS :=
 LDLIBS :=
 
-LIB_ARCHIVE := build/nothing.a
+NOTHING_LIB := build/nothing.a
+NOTHING_SRC := $(shell find nothing -name \*.cpp)
+NOTHING_OBJ := $(patsubst %.cpp,build/%.o,$(NOTHING_SRC))
 
-LIB := $(shell find nothing -name \*.c)
-TEST := $(shell find test -name \*.c)
-MISC := $(shell find misc -name \*.c)
+$(mkdir -p $(sort $(dir $(NOTHING_LIB) $(NOTHING_OBJ))))
 
-LIB_OBJ := $(patsubst %.c,build/%.o,$(LIB))
-MISC_OBJ := $(patsubst %.c,build/%.o,$(MISC))
-TEST_OBJ := $(patsubst %.c,build/%.o,$(TEST))
-OBJ := $(sort $(LIB_OBJ) $(MISC_OBJ) $(TEST_OBJ))
-
-MISC_BIN := $(patsubst %.c,bin/%,$(MISC))
-TEST_BIN := $(patsubst %.c,bin/%,$(TEST))
-BIN := $(sort $(MISC_BIN) $(TEST_BIN))
-
-.PHONY: all clean misc test run_tests
-
-all: $(MISC_BIN) $(TEST_BIN) $(LIB_ARCHIVE)
+.PHONY: all
+.all: $(NOTHING_LIB)
 
 clean:
-	@rm -rf bin build
+	rm -rf build bin
 
-lib: $(LIB_ARCHIVE)
-misc: $(MISC_BIN)
-test: $(TEST_BIN)
+build/%.o: %.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-run_tests: $(TEST_BIN)
-	@printf "Running all tests:\n"
-	@for i in $(TEST_BIN); do \
-		printf "%s:\n" "$$i"; \
-		$$i; \
-	done
+build/%.a:
+	$(AR) rcs $@ $^
 
-$(BIN): bin/% : build/%.o $(LIB_ARCHIVE)
-	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(LDLIBS) $^ -o $@
+bin/%:
+	$(CXX) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
-$(OBJ): build/%.o : %.c
-	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-$(LIB_ARCHIVE): $(LIB_OBJ)
-	ar -rcs $@ $^
+$(NOTHING_LIB): $(NOTHING_OBJ)
 
--include $(shell find build -name *.d 2>/dev/null)
+-include $(shell find build -name \*.d 2>/dev/null)

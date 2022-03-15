@@ -1,3 +1,4 @@
-[submodule "googletest"]
+[submodule "third_party/googletest"]
 	path = third_party/googletest
-	url = git@github.com:google/googletest
+	url = https://github.com/google/googletest
+	branch = main

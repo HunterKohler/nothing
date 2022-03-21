@@ -11,14 +11,28 @@
 
 #include <string>
 #include <string_view>
+#include <nothing/memory.h>
 
 namespace nothing {
 namespace abi {
 
-std::string demangle(const char *mangled);
-std::string demangle(const std::string &mangled);
-std::string demangle(const char *mangled, std::size_t size);
-std::string demangle(std::string_view mangled);
+inline std::string demangle(std::string_view view)
+{
+    int status;
+    stdlibc_unique_ptr<char> name{ ::abi::__cxa_demangle(
+        std::string(view).c_str(), nullptr, nullptr, &status) };
+
+    switch (status) {
+    case -1:
+        throw std::bad_alloc();
+    case -2:
+    case -3:
+        throw std::invalid_argument(
+            "nothing::abi::demangle: Invalid mangled name");
+    }
+
+    return { name.get() };
+}
 
 } // namespace abi
 } // namespace nothing

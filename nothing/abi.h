@@ -16,11 +16,12 @@
 namespace nothing {
 namespace abi {
 
-inline std::string demangle(std::string_view view)
+inline std::string demangle(const char *str)
 {
     int status;
-    stdlibc_unique_ptr<char> name{ ::abi::__cxa_demangle(
-        std::string(view).c_str(), nullptr, nullptr, &status) };
+    stdlibc_unique_ptr<char> name{
+        ::abi::__cxa_demangle(str, nullptr, nullptr, &status),
+    };
 
     switch (status) {
     case -1:
@@ -32,6 +33,16 @@ inline std::string demangle(std::string_view view)
     }
 
     return { name.get() };
+}
+
+inline std::string demangle(const std::string &str)
+{
+    demangle(str.c_str());
+}
+
+inline std::string demangle(std::string_view str)
+{
+    demangle(std::string{ str });
 }
 
 } // namespace abi

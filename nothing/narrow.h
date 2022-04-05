@@ -9,7 +9,10 @@
 namespace nothing {
 
 class narrowing_error : public std::exception {
-    const char *what() const noexcept { return "narrowing error"; }
+    const char *what() const noexcept
+    {
+        return "narrowing error";
+    }
 };
 
 // clang-format off
@@ -41,8 +44,6 @@ constexpr T narrow(U value)
 
     return result;
 }
-
-// clang-format on
 
 } // namespace nothing
 

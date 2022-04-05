@@ -8,6 +8,19 @@
 
 namespace nothing {
 
+// clang-format off
+
+template <class T, class U>
+concept narrowable_to =
+    requires(T t, U u) { static_cast<U>(t); static_cast<T>(u); } &&
+    ((!arithmetic<T> && !arithmetic<U>) ||
+     (arithmetic<T> && arithmetic<U> &&
+      std::totally_ordered<T> && std::totally_ordered<U> &&
+      std::is_default_constructible_v<T> &&
+      std::is_default_constructible_v<U>));
+
+// clang-format on
+
 class narrowing_error : public std::exception {
     const char *what() const noexcept
     {

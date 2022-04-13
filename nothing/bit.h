@@ -5,7 +5,7 @@
 #define NOTHING_BIT_H_
 
 #include <bit>
-#include <nothing/concepts.h>
+#include <type_traits>
 
 namespace nothing {
 
@@ -43,72 +43,6 @@ constexpr T byteswap(T value) noexcept
         static_assert(!sizeof(T), "Byte swap not supported for type");
         return 0;
     }
-}
-
-namespace detail {
-
-template <class T>
-struct [[gnu::packed]] unaligned_value {
-    T value;
-};
-
-} // namespace detail
-
-// clang-format off
-
-template <class T>
-concept alignable = alignof(T) > 1 && sizeof(T) > 0;
-
-template <class T, class U, std::size_t N>
-    requires (sizeof(T) && sizeof(U) && N != std::dynamic_extent &&
-             !(sizeof(U) * N % sizeof(T)))
-inline std::span<U, sizeof(U) * N / sizeof(T)>
-span_cast(std::span<U, N> s) noexcept
-{
-    return reinterpret_cast<T *>(s.data());
-}
-
-template <class T, class U>
-    requires (sizeof(T) && sizeof(U))
-inline std::span<T, std::dynamic_extent>
-span_cast(std::span<U, std::dynamic_extent> s)
-{
-    auto [quot, rem] = std::div(s.size() * sizeof(U));
-
-    if (rem) {
-        throw std::runtime_error(
-            "nothing::span_cast: Invalid size for span_cast");
-    }
-
-    return { reinterpret_cast<T *>(s.data()), quot };
-}
-
-template <class T>
-    requires trivially_copyable<T> && alignable<T>
-T unaligned_load(const T *ptr) noexcept
-{
-    return reinterpret_cast<const detail::unaligned_value<T> *>(ptr)->value;
-}
-
-template <class T>
-    requires trivially_copyable<T> && alignable<T>
-T unaligned_load(std::span<const std::byte, sizeof(T)> s) noexcept
-{
-    return unaligned_load<T>(reinterpret_cast<const T *>(s.data()));
-}
-
-template <class T>
-    requires trivially_copyable<T> && alignable<T>
-void unaligned_store(T *ptr, T value) noexcept
-{
-    reinterpret_cast<detail::unaligned_value<T> *>(ptr)->value = value;
-}
-
-template <class T>
-    requires trivially_copyable<T> && alignable<T>
-void unaligned_store(std::span<std::byte, sizeof(T)> s, T value) noexcept
-{
-    unaligned_store<T>(reinterpret_cast<T *>(s.data()), value);
 }
 
 template <std::integral T>

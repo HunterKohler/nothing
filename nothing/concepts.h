@@ -4,6 +4,7 @@
 #ifndef NOTHING_CONCEPTS_H_
 #define NOTHING_CONCEPTS_H_
 
+#include <tuple>
 #include <concepts>
 #include <iterator>
 #include <nothing/type_traits.h>
@@ -24,23 +25,19 @@ concept implicitly_constructible_from =
     std::constructible_from<T, Args...> &&
     (sizeof...(Args) == 0 && requires(T &t) { t = {}; }) &&
     (sizeof...(Args) == 1 &&
-        requires(T &t, nth_element_t<0, Args...> &f) { T{f}; t = f; });
+        requires(T &t, std::tuple_element_t<0, std::tuple<Args...>> &f) { T{f}; t = f; });
 
-template <class T, class U>
-concept narrowable_to =
-    requires(T t, U u) { static_cast<U>(t); static_cast<T>(u); } &&
-    ((!arithmetic<T> && !arithmetic<U>) ||
-     (arithmetic<T> && arithmetic<U> &&
-      std::totally_ordered<T> && std::totally_ordered<U> &&
-      std::is_default_constructible_v<T> &&
-      std::is_default_constructible_v<U>));
+namespace detail {
 
 template <class T>
-concept trivially_copyable = std::is_trivially_copyable_v<T>;
+using with_ref_t = T &;
 
-template <class T, class U>
-concept explicitly_convertible_to = requires(T t) { static_cast<U>(t); };
+} // namespace detail
+
+template <class T>
+concept referenceable = requires() { typename detail::with_ref_t<T>; };
 
 } // namespace nothing
+
 
 #endif

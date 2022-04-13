@@ -5,6 +5,7 @@
 #define NOTHING_MEMORY_H_
 
 #include <memory>
+#include <nothing/concepts>
 
 namespace nothing {
 
@@ -13,12 +14,14 @@ namespace nothing {
  * optimization with `unique_ptr`.
  */
 template <class T, std::invocable<T *> auto Delete>
-struct empty_deleter {
-    constexpr empty_deleter() noexcept = default;
+struct empty_delete {
+    constexpr empty_delete() noexcept = default;
 
     template <class U>
         requires std::convertible_to<U *, T *>
-    constexpr empty_deleter(const empty_deleter<U, Delete> &) noexcept {}
+    constexpr empty_delete(const empty_delete<U, Delete> &) noexcept
+    {
+    }
 
     constexpr void operator()(T *ptr) const noexcept(noexcept(Delete(ptr)))
     {
@@ -27,15 +30,17 @@ struct empty_deleter {
 };
 
 /*
- * Specialization of `empty_deleter` for array types.
+ * Specialization of `empty_delete` for array types.
  */
 template <class T, std::invocable<T *> auto Delete>
-struct empty_deleter<T[], Delete> {
-    constexpr empty_deleter() noexcept = default;
+struct empty_delete<T[], Delete> {
+    constexpr empty_delete() noexcept = default;
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr empty_deleter(const empty_deleter<U[], Delete> &) noexcept {}
+    constexpr empty_delete(const empty_delete<U[], Delete> &) noexcept
+    {
+    }
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]> &&
@@ -50,13 +55,13 @@ struct empty_deleter<T[], Delete> {
  * Deleter C standard-library allocated memory.
  */
 template <class T>
-using stdlibc_deleter = empty_deleter<T, std::free>;
+using stdlibc_delete = empty_delete<T, std::free>;
 
 /*
  * Unique pointer for C standard-library allocated memory.
  */
 template <class T>
-using stdlibc_unique_ptr = std::unique_ptr<T, stdlibc_deleter<T>>;
+using stdlibc_unique_ptr = std::unique_ptr<T, stdlibc_delete<T>>;
 
 }; // namespace nothing
 

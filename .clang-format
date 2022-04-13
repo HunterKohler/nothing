@@ -7,24 +7,19 @@ AlignOperands: true
 AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
-AllowShortEnumsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: InlineOnly
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-AllowAllArgumentsOnNextLine: false
 AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
 AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-BreakConstructorInitializers: BeforeColon
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
-AttributeMacros:
-    - __extension__
 BinPackArguments: true
 BinPackParameters: true
-BreakBeforeBraces: Custom
+BitFieldColonSpacing: After
 BraceWrapping:
     AfterClass: false
     AfterControlStatement: false
@@ -42,18 +37,20 @@ BraceWrapping:
     SplitEmptyRecord: false
     SplitEmptyFunction: true
     SplitEmptyNamespace: true
-BreakStringLiterals: false
-FixNamespaceComments: true
-EmptyLineBeforeAccessModifier: Always
 BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: true
 BreakBeforeTernaryOperators: false
-BitFieldColonSpacing: After
+BreakConstructorInitializers: BeforeColon
+BreakStringLiterals: false
 ColumnLimit: 80
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: false
 DerivePointerAlignment: false
+EmptyLineBeforeAccessModifier: Always
+FixNamespaceComments: true
 IndentCaseLabels: false
 IndentRequires: true
 IndentWidth: 4
@@ -61,26 +58,41 @@ IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
+NamespaceMacros:
 PointerAlignment: Right
+ReferenceAlignment: Pointer
 ReflowComments: false
-SortIncludes: false
+ShortNamespaceLines: 0
+SortIncludes: Never
 SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeParens: ControlStatements
 SpaceBeforeCaseColon: false
-SpaceInEmptyBlock: false
-SpacesInConditionalStatement: false
+SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: false
-ShortNamespaceLines: 0
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard: c++20
 UseCRLF: false
 UseTab: Never
+# LambdaBodyIndentationKind: ... # clang-format 13
+# PenaltyBreakOpenParenthesis: ... # clang-format 14
+
+PenaltyBreakAssignment: 10
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 10
+# PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyExcessCharacter: 10000
+PenaltyReturnTypeOnItsOwnLine: 60
+PenaltyIndentedWhitespace: 1

@@ -9,6 +9,22 @@
 
 namespace nothing {
 
+template <class Allocator, class T>
+struct rebind_allocator {
+    using type = typename std::allocator_traits<Allocator>::rebind_alloc<T>;
+};
+
+template <class Allocator, class T>
+using rebind_allocator_t = typename rebind_allocator<Allocator, T>::type;
+
+template <class Pointer, class T>
+struct rebind_pointer {
+    using type = typename std::pointer_traits<Pointer>::rebind<T>;
+};
+
+template <class Pointer, class T>
+using rebind_pointer_t = typename rebind_pointer<Pointer, T>::type;
+
 /*
  * Wrapper for a deleting function `Delete` to allow empty-base-class
  * optimization with `unique_ptr`.
@@ -19,9 +35,7 @@ struct empty_delete {
 
     template <class U>
         requires std::convertible_to<U *, T *>
-    constexpr empty_delete(const empty_delete<U, Delete> &) noexcept
-    {
-    }
+    constexpr empty_delete(const empty_delete<U, Delete> &) noexcept {}
 
     constexpr void operator()(T *ptr) const noexcept(noexcept(Delete(ptr)))
     {
@@ -38,9 +52,7 @@ struct empty_delete<T[], Delete> {
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]>
-    constexpr empty_delete(const empty_delete<U[], Delete> &) noexcept
-    {
-    }
+    constexpr empty_delete(const empty_delete<U[], Delete> &) noexcept {}
 
     template <class U>
         requires std::convertible_to<U (*)[], T (*)[]> &&

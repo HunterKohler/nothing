@@ -37,6 +37,25 @@ using with_ref_t = T &;
 template <class T>
 concept referenceable = requires() { typename detail::with_ref_t<T>; };
 
+// See exposition concept:
+// https://en.cppreference.com/w/cpp/concepts/totally_ordered
+template <class T>
+concept partially_ordered = partially_ordered_with<T, T>;
+
+template<class T, class U>
+concept partially_ordered_with =
+  requires(const std::remove_reference_t<T>& t,
+           const std::remove_reference_t<U>& u) {
+    { t <  u } -> boolean_testable;
+    { t >  u } -> boolean_testable;
+    { t <= u } -> boolean_testable;
+    { t >= u } -> boolean_testable;
+    { u <  t } -> boolean_testable;
+    { u >  t } -> boolean_testable;
+    { u <= t } -> boolean_testable;
+    { u >= t } -> boolean_testable;
+  };
+
 } // namespace nothing
 
 

@@ -10,6 +10,7 @@
 #include <string_view>
 #include <functional>
 #include <iostream>
+#include <charconv>
 #include <memory_resource>
 #include <nothing/unaligned.h>
 #include <nothing/ascii.h>
@@ -69,12 +70,12 @@ class ipv4_address {
     constexpr Out to_chars(Out dest) const
     {
         for (int i = 0; i < 3; i++) {
-            _to_chars_part(i, dest);
+            dest = _to_chars_part(_data[i], dest);
             *dest = '.';
             ++dest;
         }
 
-        _to_chars_part(3, dest);
+        dest = _to_chars_part(_data[3], dest);
         return dest;
     }
 
@@ -208,27 +209,12 @@ class ipv4_address {
   private:
     bytes_type _data;
 
-    template <std::output_iterator<char> O>
-    constexpr void _to_chars_part(int pos, O &dest) const
+    constexpr auto _to_chars_part(uint8_t value,
+                                  std::output_iterator<char> auto dest) const
     {
-        auto value = _data[pos];
-
-        if (value >= 100) {
-            *dest = (value / 100) + '0';
-            ++dest;
-            *dest = ((value / 10) % 10) + '0';
-            ++dest;
-            *dest = (value % 10) + '0';
-            ++dest;
-        } else if (value >= 10) {
-            *dest = (value / 10) + '0';
-            ++dest;
-            *dest = (value % 10) + '0';
-            ++dest;
-        } else {
-            *dest = value + '0';
-            ++dest;
-        }
+        char buf[3];
+        auto res = std::to_chars(buf, std::end(buf), value);
+        return std::copy(buf, res.ptr, dest);
     }
 };
 

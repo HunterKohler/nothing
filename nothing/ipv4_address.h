@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021-2022 John Hunter Kohler <jhunterkohler@gmail.com>
  */
-#ifndef NOTHING_INET_H_
-#define NOTHING_INET_H_
+#ifndef NOTHING_IPV4_ADDRESS_H_
+#define NOTHING_IPV4_ADDRESS_H_
 
 #include <array>
 #include <memory>

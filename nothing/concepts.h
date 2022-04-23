@@ -7,7 +7,6 @@
 #include <tuple>
 #include <concepts>
 #include <iterator>
-#include <nothing/type_traits.h>
 
 // clang-format off
 
@@ -34,13 +33,11 @@ using with_ref_t = T &;
 
 } // namespace detail
 
+// See exposition concept /*can-reference*/ described in definitions of concept
+// `std::input_or_output_iterator`:
+// https://en.cppreference.com/w/cpp/iterator/input_or_output_iterator
 template <class T>
 concept referenceable = requires() { typename detail::with_ref_t<T>; };
-
-// See exposition concept:
-// https://en.cppreference.com/w/cpp/concepts/totally_ordered
-template <class T>
-concept partially_ordered = partially_ordered_with<T, T>;
 
 template<class T, class U>
 concept partially_ordered_with =
@@ -55,6 +52,11 @@ concept partially_ordered_with =
     { u <= t } -> boolean_testable;
     { u >= t } -> boolean_testable;
   };
+
+// See exposition concept:
+// https://en.cppreference.com/w/cpp/concepts/totally_ordered
+template <class T>
+concept partially_ordered = partially_ordered_with<T, T>;
 
 } // namespace nothing
 

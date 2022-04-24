@@ -22,10 +22,7 @@ concept narrowable_to =
 // clang-format on
 
 class narrowing_error : public std::exception {
-    const char *what() const noexcept
-    {
-        return "narrowing error";
-    }
+    const char *what() const noexcept { return "narrowing error"; }
 };
 
 // clang-format off

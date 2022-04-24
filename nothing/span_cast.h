@@ -19,10 +19,7 @@ concept dynamic_span_cast = sizeof(T) > 0 && sizeof(U) > 0;
 } // namespace detail
 
 class bad_span_cast : public std::bad_cast {
-    const char *what() const noexcept
-    {
-        return "bad span_cast";
-    }
+    const char *what() const noexcept { return "bad span_cast"; }
 };
 
 template <class T, class U, size_t N>
